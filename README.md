@@ -1,9 +1,20 @@
 # SuperOffice Developer Network
 
+Getting Started:
+
+1. Download or clone the repo and open in favorite code editor
+1. Modify the `.env` file and specify your application id and secret.
+1. Run `npm install`
+1. Run `npm run` or `npm run dev` to start the web site.
+1. Navigate to `http://localhost:3300` to view the web site.
+1. IF USING SIGNIN FEATURE: make sure your app has whitelisted this redirect:
+   `http://localhost:3300/openid/callback`
+
+
 This examples web site uses NodeJs and Express to demonstrate two functions:
 
 1. How to convert RSA XML to RSA PEM
-2. How to use RSA key and System User Token to call Partner System User Service SOAP endpoint to obtain a system user ticket.
+1. How to use RSA key and System User Token to call Partner System User Service SOAP endpoint to obtain a system user ticket.
 
 ![AppPreview](public/images/ReadMe.PNG)
 
@@ -18,14 +29,6 @@ Note of Interest:
 * Demonstrates how to use the JWKS endpoint to validate the returned security token.
 
 The benefits when signed in are:
-
-Getting Started:
-
-1. Download or clone the repo and open in favorite code editor
-1. Modify the `.env` file and specify your application id and secret.
-1. Run `npm install`
-1. Run `npm run` or `npm run dev` to start the web site.
-1. Navigate to `http://localhost:3300` to view the web site.
 
 ## Web Site Use
 
