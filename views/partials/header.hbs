@@ -1,0 +1,41 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="/">
+      <img src="/images/hugo.png" class="d-inline-block align-top" alt="">
+  </a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarText">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active">
+        <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/rsa">&lt;&lt;RsaXml to PEM&gt;&gt;</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/token">&lt;&lt;Token to Ticket&gt;&gt;</a>
+      </li>
+    </ul>
+    <span class="navbar-text">
+      <ul class="navbar-nav mr-auto">
+      {{#if user}}
+      <li class="list-inline-item">
+        <span style="font-size: 1.5rem;">
+        <a class="btn-floating btn-tw mx-1" href="/account">
+          <i class="fa fa-user-circle"></i>
+        </a>
+        </span>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/account/signout">Sign Out</a>
+      </li>
+      {{else}}
+      <li class="nav-item active">
+        <a class="nav-link" href="/account/signin">Sign In <span class="sr-only">(current)</span></a>
+      </li>
+      {{/if}}
+    </ul>
+    </span>
+  </div>
+</nav>

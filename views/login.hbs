@@ -1,0 +1,26 @@
+<div class="container">
+  <form class="form-signin" method="GET" action="/openid">
+    <h1 class="h3 mb-3 font-weight-normal">Sign in via SuperOffice Online SuperID</h1>
+    <p>This action uses the expressjs passport-openidconnect strategy to orchestrate the Open ID Connect flow to obtain user information to create a user context and identity.</p>
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+    <br>
+    <code>var OidcStrategy = require('passport-openidconnect').Strategy; <br>
+      var openIdConnectStrategy = new OidcStrategy({                      <br>
+      &nbsp;&nbsp;clientID: {CLIENT_ID],                                 <br>
+      &nbsp;&nbsp;clientSecret: {CLIENT_SECRET},                         <br>
+      &nbsp;&nbsp;callbackURL: http://localhost:3300/oauth/callback,     <br>
+      &nbsp;&nbsp;authorizationURL: https://sod.superoffice.com/login/common/oauth/authorize,<br>
+      &nbsp;&nbsp;tokenURL: https://sod.superoffice.com/login/common/oauth/tokens,           <br>
+      &nbsp;&nbsp;skipUserProfile: true, // SuperOffice does NOT support userinfo endpoint!<br>
+      &nbsp;&nbsp;scope: 'openid'                                         <br>
+      &nbsp;&nbsp;}, function(iss, sub, profile, jwtClaims, accessToken, refreshToken, params, cb) {<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;// Populate user identity                   <br>
+      &nbsp;&nbsp;};                                                      <br>
+      &nbsp;&nbsp;&nbsp;&nbsp;// Passing profile info to callback         <br>
+      &nbsp;&nbsp;&nbsp;&nbsp;return cb(null, user, null);                <br>
+    &nbsp;&nbsp;}                                                         <br>
+);                                                                        <br>
+    </code>
+    <p>&nbsp;</p>
+  </form>
+</div>  

@@ -1,0 +1,249 @@
+<div class="container">
+    <h1 class="display-4">{{title}}</h1>
+    <div class="container">
+        <div class="input">
+            <form id="uploadPem" name="uploadPem" action="/getPemFileContents" method="post" enctype="multipart/form-data">
+                <label for="pem">Select RSAXML File OR paste RSA XML into text area.</label><br>
+                <div class="input-group mb-4">
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input" accept=".xml" name="rsaInput" id="rsaInput">
+                        <label class="custom-file-label" for="rsaInput" id="rsaLabel" name="rsaLabel">Choose file</label>
+                    </div>
+                    <div class="input-group-append" id="convertBtn" name="convertBtn" style="display:none">
+                        <button class="btn btn-outline-primary" id="convertToPem" name="convertToPem" type="button">Convert</button>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group" id="status"></span>
+                    </div>
+                </div>
+            </form>
+            <textarea name="privateKeyContents" id="privateKeyContents" cols="125" rows="15">{{privateKeyContents}}</textarea>
+            <div class="input-group my-3">
+                <button class="btn btn-outline-secondary float-left mr-5" type="button" id="cancelBtn">Clear</button>
+
+                <input type="text" id="downloadFilename" class="form-control text-right" style="display:none"
+                placeholder="Specify filename, then click Download." aria-label="Recipient's username"
+                    aria-describedby="basic-addon2">
+                
+                <div class="input-group-append">
+                    <button class="btn btn-outline-primary" id="downloadBtn"
+                    name="downloadBtn" style="display:none" type="button">Download PEM</button>
+                </div>
+                <div class="input-group-append">
+                    <button class="btn btn-outline-primary" id="forwardPem"
+                    name="forwardPem" style="display:none" type="button">Forward PEM</button>
+                </div>
+            </div>
+            <br>
+        </div>
+        <br>
+        <script>
+            var inputElement = document.getElementById("rsaInput");
+            var inputLabel = document.getElementById("rsaLabel");
+            var textElement = document.getElementById("privateKeyContents");
+            var cancelButton = document.getElementById("cancelBtn");
+            var convertBtn = document.getElementById("convertBtn");
+            var convertButton = document.getElementById("convertToPem");
+            var downloadBtn = document.getElementById('downloadBtn');
+            var forwardBtn = document.getElementById('forwardPem');
+            var downloadFilename = document.getElementById("downloadFilename");
+            var statusElement = document.getElementById("status");
+
+            var numFiles = 0;
+
+            inputElement.onclick = function (event) {
+                inputElement.value = '';
+                updateUI(event);
+            }
+
+            inputElement.onchange = function (event) {
+                updateUI(event);
+            }
+
+            inputElement.onblur = function (event) {
+                updateUI(event);
+            }
+
+            textElement.onchange = function (event) {
+                updateUI(event);
+            }
+
+            textElement.onblur = function (event) {
+                updateUI(event);
+            }
+
+            convertButton.onclick = function (event) {
+                convertRsatoPem(textElement);
+            }
+
+            downloadBtn.onclick = function (event) {
+                downloadPem();
+            }
+
+            forwardBtn.onclick = function (event) {
+                forwardPem();
+            }
+
+            cancelButton.onclick = function (event) {
+                console.log("Cancel button clicked.");
+                textElement.value = '';
+                inputElement.value = '';
+
+                downloadBtn.style.display = 'none';
+                downloadFilename.style.display = 'none';
+                forwardBtn.style.display = 'none';
+
+                var blur = new FocusEvent('blur',
+                    {
+                        bubbles: false,
+                        cancelable: false,
+                        target: textElement
+                    });
+
+                textElement.dispatchEvent(blur);
+            }
+
+            function updateUI(event) {
+                var target = event.target || event.srcElement;
+
+                console.log("%s, %s ", target, event.type);
+
+                if (inputElement.value.length == 0) {
+                    inputLabel.innerHTML = 'Choose file';
+
+                    if (target.value.length > 0) {
+                        // Pasted text in textArea?
+                        convertBtn.style.display = 'block';
+                    }
+
+                }
+
+                if (target.value.length == 0) {
+                    //console.log("Suspect Cancel was hit, no files selected.");
+                    if (event.type == "click") {
+                        cancelButton.onclick();
+                    } else if (target.files && numFiles == target.files.length) {
+                        cancelButton.onclick();
+                    }
+                    // not need to show Convert when nothing to convert...
+                    convertBtn.style.display = 'none';
+
+                    if(target.name == 'privateKeyContents' && event.type == 'blur')
+                    {
+                        downloadBtn.style.display = 'none';
+                        downloadFilename.style.display = 'none';
+                        forwardBtn.style.display = 'none';
+                        inputLabel.innerHTML = 'Choose file';
+                    }
+
+                } else {
+
+                    // a file is selected, so let's show the contents con Convert button...
+
+                    if (target.files) {
+                        numFiles = target.files.length;
+                        inputLabel.innerHTML = target.value;
+                        convertBtn.style.display = 'block';
+                        
+                        //get the content to display!
+                        //getRsaFileContents(textElement);
+                        loadRsaFileContents();
+                    }
+                }
+            }
+
+            function loadRsaFileContents() {
+                statusElement.innerHTML = 'Loading file...please wait.';
+                var fileToLoad = inputElement.files[0];
+                var fileReader = new FileReader();
+                fileReader.onload = function(fileLoadedEvent) 
+                {
+                    var textFromFileLoaded = fileLoadedEvent.target.result;
+                    textElement.value = textFromFileLoaded;
+                    statusElement.innerHTML = '';
+                };
+                fileReader.readAsText(fileToLoad, "UTF-8");
+            }
+
+            function convertRsatoPem(textControl) {
+                var data = JSON.stringify({ rsaxml: textControl.value });
+
+                fetch(window.location + "/convertRsaToPem", {
+                    method: 'POST',
+                    body: data,
+                    headers: { "Content-Type": "application/json" }
+                }).then(res => res.json())
+                    .then(response => {
+                        textControl.value = response.pemContent;
+                        if (textElement.value.length > 0 && textElement.value.startsWith('----')) {
+                            downloadBtn.style.display = 'block';
+                            forwardBtn.style.display = 'block';
+                            downloadFilename.style.display = 'block';
+                        } else {
+                            downloadBtn.style.display = 'none';
+                            forwardBtn.style.display = 'none';
+                            downloadFilename.style.display = 'none';
+                        }
+                    })
+                    .catch(error =>
+                        console.error('Error:', error)
+                    );
+            }
+
+            function downloadPem(target) {
+                saveTextAsFile();
+            }
+
+            function saveTextAsFile() {
+                var textToWrite = textElement.value;
+                var textFileAsBlob = new Blob([textToWrite], { type: 'text/plain' });
+                var fileNameToSaveAs = downloadFilename.value;
+
+                var downloadLink = document.createElement("a");
+                downloadLink.download = checkFileName(fileNameToSaveAs); //ensure ends .pem
+                downloadLink.innerHTML = "Download File";
+
+                window.URL = window.URL || window.webkitURL;
+                downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+
+                if (window.webkitURL == null) {
+                    // Firefox requires the link to be added to the DOM
+                    // before it can be clicked.
+                    downloadLink.onclick = destroyClickedElement;
+                    downloadLink.style.display = "none";
+                    document.body.appendChild(downloadLink);
+                }
+
+                downloadLink.click();
+            }
+
+            function checkFileName(filename) {
+
+                if(filename.length == 0) {
+                    filename = 'privatekey.pem';
+                } else if (filename.length > 0 && !filename.endsWith('.pem')) {
+                    filename = filename + '.pem';
+                }
+                
+                return filename;
+            }
+
+            function destroyClickedElement(event) {
+                document.body.removeChild(event.target);
+            }
+
+            function forwardPem() {
+                var data = JSON.stringify({ rsaPem: textElement.value });
+
+                fetch(window.location.origin + "/token", {
+                    method: 'POST',
+                    body: data,
+                    headers: { "Content-Type": "application/json" }
+                }).then(res => window.location = window.location.origin + "/token")
+                .catch(error =>
+                    console.error('Error:', error)
+                );
+            }
+        </script>
+    </div>
+</div>

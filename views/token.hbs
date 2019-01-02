@@ -1,0 +1,94 @@
+<div class="container">
+    <h1 class="display-4">{{title}}</h1>
+    <!-- Show any errors. -->
+    <div>
+        {{# if errors }}
+        <section class="errors">
+            <ul>
+                {{# each errors }}
+                <li>{{ this.msg }}</li>
+                {{/each}}
+            </ul>
+        </section>
+        {{/if}}
+    </div>
+
+    {{#if systemUserClaims}}
+    <h2>Congratulations!</h2>
+    <p>The following table lists all system user token claims.</p>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Key</th>
+                    <th scope="col">Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each systemUserClaims}}
+                <tr>
+                    <td>{{@key}}</td>
+                    <td>{{this}}</td>
+                    {{/each}}
+            </tbody>
+        </table>
+    </div>
+    {{else}}
+    <form id="regForm" action="/token/getSystemUserTicket" method="POST">
+
+        <!-- One "tab" for each step in the form: -->
+        <div class="tab">
+            <h1>Step 1: Create a signed system user token</h1>
+            <h3>The following details are required to create a signed system user token</h3>
+            <p>
+                <label for="sysUserToken">System User Token:</label><br>
+                <input name="sysUserToken" id="sysUserToken" placeholder="System User Token..." oninput="this.className = ''"
+                    value="{{user.system_token}}">
+            </p>
+            <p>
+                <label for="pem">RSA Private Key in PEM Format:</label><br>
+                <textarea placeholder="Private PEM File Contents..." name="pem" oninput="this.className = ''" id="pem"
+                    cols="75" rows="15">{{pem}}</textarea>
+            </p>
+        </div>
+
+        <div class="tab">
+            <h1>Step 2: Call the Partner System User Service</h1>
+            <h3>The following details are required to get the system user token</h3>
+            <p>
+                <label for="signedToken">Signed Token:</label><br>
+                <input name="signedToken" id="signedToken" placeholder="SignedToken..." oninput="this.className = ''"
+                    value="{{signedToken}}"></p>
+            <p>
+                <label for="customerId">Context Identifier:</label><br>
+                <input name="customerId" id="customerId" placeholder="Customer ID..." oninput="this.className = ''"
+                    value="{{user.ctx}}">
+            </p>
+            <p>
+                <label for="appToken">Application Token:</label><br>
+                <input name="appToken" id="appToken" placeholder="App Token (a.k.a. client secret)..." oninput="this.className = ''"
+                    value="{{clientSecret}}"></p>
+        </div>
+
+        <div style="overflow:auto;">
+            <div style="float:right;">
+                <button type="button" id="prevBtn" onclick="nextPrev(-1)">Previous</button>
+                <button type="button" id="nextBtn" onclick="nextPrev(1)">Next</button>
+            </div>
+        </div>
+
+    </form>
+    {{/if}}
+
+    {{#if systemUserClaims}}
+    {{!-- Hide the bullets! --}}
+    {{else}}
+    <!-- Circles which indicates the steps of the form: -->
+    <div style="text-align:center;margin-top:40px;">
+        <span class="step"></span>
+        <span class="step"></span>
+        <span class="step"></span>
+    </div>
+    {{/if}}
+</div>
+<script src="/javascripts/token.js"></script>

@@ -1,0 +1,54 @@
+<div class="jumbotron jumbotron-fluid">
+  <div class="container">
+    <h1 class="display-4">{{title}}</h1>
+    <p class="lead">Developer tools, by the community for community.</p>
+    <p>This tool can be used both with or without signing into SuperID.</p>
+    <p>The benefits when signed in are:
+      <ul>
+        <li>Logged in users see their access token and a few token claims on the profile page.</li>
+        <li>Key pieces of information are 'auto-populated' when used to exchange a system user token for a system user
+          ticket.</li>
+      </ul>
+    </p>
+    <p>Getting Started:
+      <ul>
+        <li>Edit the .env file and populate the client id and client secret.</li>
+      </ul>
+    </p>
+  </div>
+</div>
+<div class="container">
+  <div class="row mb-2">
+    <div class="col-md-6">
+      <div class="card mb-4 shadow-sm">
+        <button onclick="javascript:window.location = '/rsa';" class="btn btn-primary">Convert RSA XML to RSA PEM</button>
+        <div class="card-body">
+          <p class="card-text">Most frameworks expect private keys in PEM format. This tool simplifies converting RSA
+            XML format to PEM format.</p>
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="btn-group">
+              <button onclick="javascript:window.location = '/rsa';" type="button" class="btn btn-sm btn-outline-secondary">View</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card mb-4 shadow-sm">
+        <button onclick="javascript:window.location = '/token';" class="btn btn-primary">Exchange System Token for
+          Ticket</button>
+        <div class="card-body">
+          <p class="card-text">This tool demonstates how to take a system user token and exchange it for a system user
+            ticket.</p>
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="btn-group">
+              <button onclick="javascript:window.location = '/token';" type="button" class="btn btn-sm btn-outline-secondary">View</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{{!--
+<script src="/javascripts/fileupload.js" crossorigin="anonymous"></script> --}}
