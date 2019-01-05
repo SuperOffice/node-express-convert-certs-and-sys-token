@@ -1,31 +1,34 @@
 <div class="container">
     <h1 class="display-4">{{title}}</h1>
     {{#with user}}
-        <div class="label label-info">
-            <label for="contextIdentifier">Context ID: {{ctx}}</label>
-        </div>
-        <div class="label label-info">
-            <label for="exampleInputEmail1">Email: {{email}}</label>
-        </div>
-        <div class="label label-info">
-            <label for="associateId">Associate ID: {{id}}</label>
-        </div>
-        <div class="label label-info">
-            <label for="system_token">System User Token: {{system_token}}</label>
-        </div>
-        <div class="label label-info">
-            <label for="system_token">RESTful API URL: {{webapi_url}}</label>
-        </div>
-        <div class="label label-info">
-            <label for="system_token">SOAP API URL: {{netserver_url}}</label>
-        </div>
-        <div class="label label-info">
-            <label for="access_token">Access Token:</label><br>
-            <textarea name="access_token" id="access_token" cols="100" rows="10">{{info.accessToken}}</textarea>
-        </div>
+    <div class="label label-info">
+        <label for="contextIdentifier">Context ID: {{ctx}}</label>
+    </div>
+    <div class="label label-info">
+        <label for="exampleInputEmail1">Email: {{email}}</label>
+    </div>
+    <div class="label label-info">
+        <label for="associateId">Associate ID: {{id}}</label>
+    </div>
+    <div class="label label-info">
+        <label for="system_token">System User Token: {{system_token}}</label>
+    </div>
+    <div class="label label-info">
+        <label for="system_token">RESTful API URL: {{webapi_url}}</label>
+    </div>
+    <div class="label label-info">
+        <label for="system_token">SOAP API URL: {{netserver_url}}</label>
+    </div>
+    <div class="label label-info">
+        <label for="access_token">Access Token:</label><br>
+        <textarea name="access_token" id="access_token" cols="100" rows="8">{{info.accessToken}}</textarea>
+    </div>
+    <form action="/account/refresh" method="post" class="form-signin">
         <div class="label label-info">
             <label for="refresh_token">Refresh Token:</label><br>
-            <textarea name="access_token" id="access_token" cols="100" rows="5">{{info.refreshToken}}</textarea>
+            <textarea name="refresh_token" id="refresh_token" cols="100" rows="2">{{info.refreshToken}}</textarea>
         </div>
-        {{/with}}
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Refresh</button>
+    </form>
+    {{/with}}
 </div>
