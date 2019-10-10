@@ -84,4 +84,32 @@ router.post("/refresh", function(req, res) {
   );
 });
 
+router.post("/revoke", function(req, res) {
+  var refresh_token = req.body.refresh_token;
+  var revoke_url = `${process.env.OIDC_REVOKE_URL}?token=${refresh_token}&token_type_hint=JWT`;
+
+  request.post(
+    {
+      url: revoke_url,
+      headers: {
+        Accept: "application/json"
+      }
+    },
+    async function(error, response, body) {
+      try {
+        console.log("\nResponse:\n" + body);
+
+        var serverRes = JSON.parse(body);
+
+        console.log("token revoked!");
+
+      } catch (error) {
+        console.log("Error: " + error);
+      }
+
+      res.redirect("/account");
+    }
+  );
+});
+
 module.exports = router;
