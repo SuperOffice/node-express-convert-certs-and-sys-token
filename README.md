@@ -3,7 +3,7 @@
 Getting Started:
 
 1. Download or clone the repo and open in favorite code editor
-1. Modify the `.env` file and specify your application id and secret.
+1. Modify the `.env` file and specify your client_id and client_secret.
 1. Run `npm install`
 1. Run `npm run` or `npm run dev` to start the web site.
 1. Navigate to `http://localhost:3300` to view the web site.
