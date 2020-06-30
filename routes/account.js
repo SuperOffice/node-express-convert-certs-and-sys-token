@@ -86,7 +86,6 @@ router.post("/refresh", function(req, res) {
   );
 });
 
-
 router.post("/revoke", function(req, res) {
   var refresh_token = req.body.refresh_token;
   var oidc = req.session.oidc;
