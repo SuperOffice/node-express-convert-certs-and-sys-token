@@ -17,7 +17,7 @@
                     </div>
                 </div>
             </form>
-            <textarea name="privateKeyContents" id="privateKeyContents" cols="125" rows="15">{{privateKeyContents}}</textarea>
+            <textarea name="privateKeyContents" id="privateKeyContents" cols="125" rows="15" placeholder="Browse for file, or paste RSAXML here...">{{privateKeyContents}}</textarea>
             <div class="input-group my-3">
                 <button class="btn btn-outline-secondary float-left mr-5" type="button" id="cancelBtn">Clear</button>
 
@@ -50,6 +50,11 @@
             var statusElement = document.getElementById("status");
 
             var numFiles = 0;
+
+            textElement.onpaste = function (event) {
+                inputElement.value = '';
+                updateUI(event);
+            }
 
             inputElement.onclick = function (event) {
                 inputElement.value = '';
@@ -119,14 +124,17 @@
                 }
 
                 if (target.value.length == 0) {
+                    var pasteEvent = false;
                     //console.log("Suspect Cancel was hit, no files selected.");
                     if (event.type == "click") {
                         cancelButton.onclick();
                     } else if (target.files && numFiles == target.files.length) {
                         cancelButton.onclick();
+                    } else if (event.type == "paste") {
+                        pasteEvent = true;
                     }
                     // not need to show Convert when nothing to convert...
-                    convertBtn.style.display = 'none';
+                    convertBtn.style.display = pasteEvent ? 'block' : 'none';
 
                     if(target.name == 'privateKeyContents' && event.type == 'blur')
                     {
@@ -175,9 +183,10 @@
                 }).then(res => res.json())
                     .then(response => {
                         textControl.value = response.pemContent;
+                        var showForward = response.loggedIn;
                         if (textElement.value.length > 0 && textElement.value.startsWith('----')) {
                             downloadBtn.style.display = 'block';
-                            forwardBtn.style.display = 'block';
+                            forwardBtn.style.display = showForward ? 'block' : 'none';
                             downloadFilename.style.display = 'block';
                         } else {
                             downloadBtn.style.display = 'none';

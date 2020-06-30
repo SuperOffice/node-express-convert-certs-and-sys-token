@@ -1,78 +1,86 @@
 # SuperOffice Developer Network
 
+Live version of this application: https://devnet-tokens.azurewebsites.net
+
 Getting Started:
 
-1. Download or clone the repo and open in favorite code editor
-1. Modify the `.env` file and specify your application id and secret.
-1. Run `npm install`
+1. Download or clone the repo
+1. Open in favorite code editor
+1. In the repo folder run `npm install`
 1. Run `npm run` or `npm run dev` to start the web site.
 1. Navigate to `http://localhost:3300` to view the web site.
-1. IF USING SIGNIN FEATURE: make sure your app has whitelisted this redirect:
-   `http://localhost:3300/openid/callback`
 
+> [!NOTE]
+> For sign-in, make sure your app has whitelisted this redirect URL:<br>`http://localhost:3300/openid/callback`
 
 This examples web site uses NodeJs and Express to demonstrate two functions:
 
-1. How to convert RSA XML to RSA PEM
-1. How to use RSA key and System User Token to call Partner System User Service SOAP endpoint to obtain a system user ticket.
+1. how to convert RSA XML to RSA PEM
+1. how to use RSA PEM to sign your System User Token and call the System User Service to obtain a system user ticket
+
+**When not signed-in.**
 
 ![AppPreview](public/images/ReadMe.PNG)
+**When signed-in.**
 
-Note of Interest:
+---
 
-* Web site can be used both with and without first signing into SuperID.
+![AppPreview](public/images/FrontPage2.PNG)
 
-* Signing into SuperID is beneficial in a couple ways:
-  * Display own users JWT details (claims)
-  * Save a few keystrokes for populating the System User Token field and context identifier.
+**Note of Interest**:
+
+* Web site is best used when signed in.
+
+* Signing into SuperId is beneficial in a couple ways:
+  * display own users JWT details (claims)
+  * save keystrokes when populating fields
 
 * Demonstrates how to use the JWKS endpoint to validate the returned security token.
-
-The benefits when signed in are:
 
 ## Web Site Use
 
 ### Convert RSA XML to RSA PEM
 
-On this page, you can either 
+On this page, you can either
 
-1. Paste in an RSA key and tab out, or
-1. Use the Browse button to open your private RSA XML file.
+1. paste in an RSA key
+1. use the **Browse** button to open your private RSA XML file
 
-Afterwards the Convert button will appear. Click the Convert button to convert the RSA key from XML to PEM format. 
+Afterwards the Convert button will appear. Click the Convert button to convert the RSA key from XML to PEM format.
 
-When converted, Download PEM and Forward PEM buttons are displayed.
+When converted, both the Download PEM and Forward PEM buttons are displayed.
 
 Use the download button to permanently save the PEM format to your drive.
 
-Use the forward button to send your PEM key to the Exchange System User token page. This is more of a convenience feature.
+Use the forward button to send your PEM key to the **Token to Ticket** page. This is more of a convenience feature.
 
 ![ConvertKeyPage](public/images/ConvertKeysPage.PNG)
 
+---
+
 ### Exchange System Token for Ticket
 
-This is a wizard driven approach to signing a system user token, and then using it to obtain a system user ticket.
+This is a wizard driven approach to signing a system user token, and then sending it to the SystemUserService endpoint to obtain a system user JWT. The system user JWT contains a system user ticket claim.
 
-### Step 1: Specify the System User Token and Private Key. 
+#### Step 1: Specify the System User Token and Private Key.
 
 Note that if you signed in, and you are an admin user, this value will be populated for you.
 
 ![WizardPage1](public/images/ExchangeWizPage1.PNG)
 
-### Step 2: Use Signed Token and Invoke SOAP Endpoint
+#### Step 2: Use Signed Token and Invoke SOAP Endpoint
 
-To invoke the SOAP PartnerSystemUserService endopint, to get back the System User Ticket, you must specify the tenants context identifier and your applications secret token.
-
-The context identifier must be the owner of the system user token, used in step 1.
+To invoke the SOAP PartnerSystemUserService endpoint, you must specify the tenants context identifier and your applications secret token. This is filled in for you automatically.
 
 The application token must belong to an application with prior access approval.
 
 ![WizardPage1](public/images/ExchangeWizPage2.PNG)
 
-## Step 3: The Result
+#### Step 3: The Result
 
 If successful, the final page lists all claims in the returned security token, including the system user ticket.
 
 ![WizardPage1](public/images/ExchangeWizPage3.PNG)
 
 I hope this application has been helpful!
+

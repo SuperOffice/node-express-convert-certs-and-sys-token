@@ -30,5 +30,12 @@
         </div>
         <button class="btn btn-lg btn-primary btn-block" type="submit">Refresh</button>
     </form>
+    <form action="/account/revoke" method="post" class="form-signin">
+        <div class="label label-info">
+            <label for="revoke_token">Revoke Token:</label><br>
+            <textarea name="revoke_token" id="revoke_token" cols="100" rows="2">{{info.refreshToken}}</textarea>
+        </div>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Revoke</button>
+    </form>
     {{/with}}
 </div>

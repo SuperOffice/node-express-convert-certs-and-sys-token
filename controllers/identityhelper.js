@@ -1,16 +1,24 @@
 var jwksClient = require("jwks-rsa");
 var jwt = require("jsonwebtoken");
+const { request } = require("express");
 
-function getSigningKey() {
+function getSigningKey(oidcSettings) {
   return new Promise(function(resolve, reject) {
-    var client = jwksClient({ jwksUri: process.env.OIDC_JWKS_URL });
-
-    client.getSigningKey(process.env.OIDC_KID, function(err, key) {
-      if (err) {
+    var jwksUrl = process.env.OIDC_JWKS_URL.replace("sod", oidcSettings.env);
+    var client = jwksClient({ jwksUri: jwksUrl });
+    client.getKeys(function(err, keys) {
+      if(err) {
         reject(err);
       } else {
-        var signingKey = key.publicKey || key.rsaPublicKey;
-        resolve(signingKey);
+        // get the first and only key
+        client.getSigningKey(keys[0].kid, function(inerr, key) {
+          if (inerr) {
+            reject(inerr);
+          } else {
+            var signingKey = key.publicKey || key.rsaPublicKey;
+            resolve(signingKey);
+          }
+        });
       }
     });
   });
@@ -63,8 +71,8 @@ module.exports.populateUser = function(accessToken, refreshToken, jwtClaims) {
   return user;
 };
 
-module.exports.validateJwtToken = async function(token) {
-  var soPublicKey = await getSigningKey();
+module.exports.validateJwtToken = async function(token, oidcSettings) {
+  var soPublicKey = await getSigningKey(oidcSettings);
   var validatedToken = await validateToken(token, soPublicKey);
   return validatedToken;
 };

@@ -37,8 +37,10 @@ router.post('/rsa/convertRsaToPem', function(req, res) {
   if(req.body)
   {
     var rsaXml = new RSA();
-    var pem = rsaXml.exportPemKey(req.body.rsaxml);   
-    res.send(JSON.stringify({ pemContent: pem }));
+    var pem = rsaXml.exportPemKey(req.body.rsaxml);
+    var loggedIn = false;
+    if(req.session && req.session.passport) loggedIn = req.session.passport.user ? true : false;   
+    res.send(JSON.stringify({ pemContent: pem, loggedIn: loggedIn }));
   } else {
     res.send('No File!')
   }

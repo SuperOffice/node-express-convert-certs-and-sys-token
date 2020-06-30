@@ -46,3 +46,14 @@ textarea.invalid {
 .step.finish {
   background-color: #4CAF50;
 }
+
+.signin {
+  width: 50%;
+}
+
+.signin {
+  padding: 10px;
+  width: 75%;
+  align-content: center;
+  border: 1px solid #aaaaaa;
+}
