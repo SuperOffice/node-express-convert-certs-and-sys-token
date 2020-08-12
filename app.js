@@ -5,7 +5,7 @@ var MemoryStore = require("memorystore")(session);
 var flash = require("express-flash");
 var passport = require("passport");
 var exphbs = require("express-handlebars");
-var expressValidator = require("express-validator");
+//var expressValidator = require("express-validator");
 var path = require("path");
 var logger = require("morgan");
 var bodyParser = require("body-parser");
@@ -34,7 +34,7 @@ app.set("view engine", "hbs");
 app.use(logger("dev"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(expressValidator());
+//app.use(expressValidator());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -49,6 +49,8 @@ app.use(
     }),
     cookie: {
       httpOnly: true,
+      secure: true,
+      sameSite: 'none',
       maxAge: 1800000
     }
   })

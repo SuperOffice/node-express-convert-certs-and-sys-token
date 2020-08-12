@@ -20,7 +20,7 @@ router.get("/", Auth.required, function(req, res) {
 });
 
 router.get("/signin", function(req, res) {
-  res.render("login", { title: "Login Page" });
+  res.render("login", { title: "Login Page", isLogin: true });
 });
 
 router.get("/signout", function(req, res) {
