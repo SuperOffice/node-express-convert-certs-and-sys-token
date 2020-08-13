@@ -8,6 +8,7 @@ var fs = require('fs');
 var app = require('../app');
 var debug = require('debug')('devnet-online-authentication:server');
 var http = require('https');
+var path = require('path');
 
 /**
  * Get port from environment and store in Express.
@@ -21,8 +22,9 @@ app.set('port', port);
  * Create HTTPS server.
  */
 
-var key = fs.readFileSync(__dirname + '../../certs/selfsigned.key');
-var cert = fs.readFileSync(__dirname + '../../certs/selfsigned.crt');
+var key = fs.readFileSync(path.resolve('certs','selfsigned.key'));
+var cert = fs.readFileSync(path.resolve('certs','selfsigned.crt'));
+
 var options = {
   key: key,
   cert: cert
