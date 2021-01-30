@@ -4,17 +4,17 @@ trigger:
 - main
 
 variables:
+  # VariableGroup name
+  - group: DevNetVariables
   # Agent VM image name
-  vmImageName: 'ubuntu-latest'
+  - name: vmImageName
+    value: 'ubuntu-latest'
 
 stages:
 - stage: Build
   displayName: Build stage
   jobs:  
   - job: Build
-    variables:
-    - group: DevNetVariables
-    
     displayName: Build
     pool:
       vmImage: $(vmImageName)
@@ -47,8 +47,6 @@ stages:
   displayName: Deploy stage
   dependsOn: Build
   condition: succeeded()
-  variables:
-  - group: DevNetVariables
   jobs:
   - deployment: Deploy
     displayName: Deploy
