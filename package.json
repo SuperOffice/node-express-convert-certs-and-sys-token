@@ -23,7 +23,7 @@
     "hbs": "^4.1.1",
     "http-errors": "~1.8.0",
     "jsonwebtoken": "^8.5.1",
-    "jwks-rsa": "^1.8.1",
+    "jwks-rsa": "^1.12.2",
     "memorystore": "^1.6.2",
     "moment": "^2.27.0",
     "morgan": "~1.10.0",
