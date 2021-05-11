@@ -57,3 +57,8 @@ textarea.invalid {
   align-content: center;
   border: 1px solid #aaaaaa;
 }
+
+.btn-super {
+  color: #FFFFFF!important;
+  background: #0A5E58;
+}
