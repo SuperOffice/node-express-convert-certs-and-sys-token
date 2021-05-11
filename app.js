@@ -31,6 +31,19 @@ app.engine(
 );
 app.set("view engine", "hbs");
 
+//Tell Express that we're running behind a
+//reverse proxy that supplies https for you
+app.set('trust proxy', 1);
+
+//Add middleware that will trick Express
+//into thinking the request is secure
+app.use(function(req, res, next) {
+  if(req.headers['x-arr-ssl'] && !req.headers['x-forwarded-proto']) {
+    req.headers['x-forwarded-proto'] = 'https';
+  }
+  return next();
+});
+
 app.use(logger("dev"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -48,8 +61,10 @@ app.use(
       checkPeriod: 86400000 // prune expired entries every 24h
     }),
     cookie: {
-      httpOnly: true,
-      maxAge: 1800000
+      httpOnly: false,
+      maxAge: 1800000,
+      sameSite: "none",
+      secure:"auto"
     }
   })
 );
