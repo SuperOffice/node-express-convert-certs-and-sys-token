@@ -4,11 +4,9 @@
  * Module dependencies.
  */
 
-var fs = require('fs');
 var app = require('../app');
 var debug = require('debug')('devnet-online-authentication:server');
-var http = require('https');
-var path = require('path');
+var http = require('http');
 
 /**
  * Get port from environment and store in Express.
@@ -19,19 +17,10 @@ var port = normalizePort(process.env.PORT || '3300');
 app.set('port', port);
 
 /**
- * Create HTTPS server.
+ * Create HTTP server.
  */
 
-var key = fs.readFileSync(path.resolve('certs','selfsigned.key'));
-var cert = fs.readFileSync(path.resolve('certs','selfsigned.crt'));
-
-var options = {
-  key: key,
-  cert: cert
-};
-
-//var server = https.createServer(options, app);
-var server = http.createServer(options, app);
+var server = http.createServer(app);
 
 /**
  * Listen on provided port, on all network interfaces.

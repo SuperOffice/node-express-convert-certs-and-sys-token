@@ -5,7 +5,6 @@ var MemoryStore = require("memorystore")(session);
 var flash = require("express-flash");
 var passport = require("passport");
 var exphbs = require("express-handlebars");
-//var expressValidator = require("express-validator");
 var path = require("path");
 var logger = require("morgan");
 var bodyParser = require("body-parser");
@@ -37,17 +36,16 @@ app.set('trust proxy', 1);
 
 //Add middleware that will trick Express
 //into thinking the request is secure
-app.use(function(req, res, next) {
-  if(req.headers['x-arr-ssl'] && !req.headers['x-forwarded-proto']) {
-    req.headers['x-forwarded-proto'] = 'https';
-  }
-  return next();
-});
+// app.use(function(req, res, next) {
+//   if(req.headers['x-arr-ssl'] && !req.headers['x-forwarded-proto']) {
+//     req.headers['x-forwarded-proto'] = 'https';
+//   }
+//   return next();
+// });
 
 app.use(logger("dev"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-//app.use(expressValidator());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -62,8 +60,6 @@ app.use(
     }),
     cookie: {
       httpOnly: true,
-      secure: true,
-      sameSite: 'none',
       maxAge: 1800000
     }
   })
