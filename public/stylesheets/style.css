@@ -47,7 +47,13 @@ textarea.invalid {
   background-color: #4CAF50;
 }
 
-div.signin {
-  width: 500px;
-  margin: auto;
+.signin {
+  width: 50%;
+}
+
+.signin {
+  padding: 10px;
+  width: 75%;
+  align-content: center;
+  border: 1px solid #aaaaaa;
 }

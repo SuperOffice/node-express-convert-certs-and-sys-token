@@ -60,13 +60,13 @@
                 <input name="signedToken" id="signedToken" placeholder="SignedToken..." oninput="this.className = ''"
                     value="{{signedToken}}"></p>
             <p>
-                <label for="customerId">Context Identifier:</label><br>
+                <label for="customerId">Context Identifier (i.e. Cust12345):</label><br>
                 <input name="customerId" id="customerId" placeholder="Customer ID..." oninput="this.className = ''"
                     value="{{user.ctx}}">
             </p>
             <p>
-                <label for="appToken">Application Token:</label><br>
-                <input name="appToken" id="appToken" placeholder="App Token (a.k.a. client secret)..." oninput="this.className = ''"
+                <label for="appToken">Client Secret (Application Token):</label><br>
+                <input name="appToken" id="appToken" placeholder="client_secret (a.k.a. application token)..." oninput="this.className = ''"
                     value="{{clientSecret}}"></p>
         </div>
 

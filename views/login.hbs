@@ -1,11 +1,32 @@
 <div class="container">
-  <form class="form-signin" method="GET" action="/openid">
-    <h1 class="h3 mb-3 font-weight-normal">Choose to sign in with:</h1>
-    <p>&nbsp;</p>
-    <div class="signin">
-      <button class="btn btn-lg btn-primary btn-block" type="submit">SuperOffice Online (SOD)</button>
-    </div>
-    <br>
-    <p>&nbsp;</p>
-  </form>
-</div>  
+  <div class="container">
+    <form class="form-signin" method="POST" action="/openid">
+      <h1 class="h3 mb-3 font-weight-normal">Sign-in to SuperOffice</h1>
+      <div class="mb-4">Fill in settings, then click sign-in button.</div>
+      <div class="input-group mb-4">
+        <label for="environment">Choose environment: </label><br>
+        <div class="input-group  mb-4">
+          <select name="environment" id="environment">
+            <option value="sod">Development</option>
+            <option value="qaonline">Stage</option>
+            <option value="online">Production</option>
+          </select>
+        </div>
+        <div class="input-group  mb-4">
+          <label for="clientId">Client Id (Application Id):</label>
+          <input name="clientId" id="clientId" type="text" width="50" placeholder="client_id" value="">
+        </div>
+        <div class="input-group">
+          <label for="clientSecret">Client Secret (Application Token):</label>
+          <input name="clientSecret" id="clientSecret" type="text" width="50" placeholder="client_secret" value="">
+        </div>
+        <div class="input-group">
+          <span class="input-group" id="status"></span>
+        </div>
+      </div>
+      <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+      <p>&nbsp;</p>
+    </form>
+  </div>
+
+</div>

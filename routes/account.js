@@ -20,7 +20,7 @@ router.get("/", Auth.required, function(req, res) {
 });
 
 router.get("/signin", function(req, res) {
-  res.render("login", { title: "Login Page" });
+  res.render("login", { title: "Login Page", isLogin: true });
 });
 
 router.get("/signout", function(req, res) {
@@ -43,13 +43,14 @@ router.post("/login", function(req, res) {
 });
 
 router.post("/refresh", function(req, res) {
+  var oidcSettings = req.session.oidc;
   var refresh_token = req.body.refresh_token;
   var refresh_url = `${
-    process.env.OIDC_TOKEN_URL
+    process.env.OIDC_TOKEN_URL.replace("sod", oidcSettings.env)
   }?grant_type=refresh_token&client_id=${
-    process.env.OIDC_CLIENT_ID
+    oidcSettings.clientId
   }&client_secret=${
-    process.env.OIDC_CLIENT_SECRET
+    oidcSettings.clientSecret
   }&refresh_token=${refresh_token}&redirect_url=${
     process.env.OIDC_CALLBACK_URL
   }`;
@@ -65,8 +66,9 @@ router.post("/refresh", function(req, res) {
       console.log("\nResponse:\n" + body);
       var serverRes = JSON.parse(body);
       try {
+        var settings = res.req.session.oidc;
         var jwtClaims = await identityhelper.validateJwtToken(
-          serverRes.id_token
+          serverRes.id_token, settings
         );
 
         var user = identityhelper.populateUser(
@@ -86,7 +88,9 @@ router.post("/refresh", function(req, res) {
 
 router.post("/revoke", function(req, res) {
   var refresh_token = req.body.refresh_token;
-  var revoke_url = `${process.env.OIDC_REVOKE_URL}?token=${refresh_token}&token_type_hint=JWT`;
+  var oidc = req.session.oidc;
+
+  var revoke_url = `${process.env.OIDC_REVOKE_URL.replace("sod", oidc.env )}?token=${refresh_token}&token_type_hint=JWT`;
 
   request.post(
     {
