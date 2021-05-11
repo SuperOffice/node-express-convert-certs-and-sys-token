@@ -44,7 +44,7 @@ textarea.invalid {
 
 /* Mark the steps that are finished and valid: */
 .step.finish {
-  background-color: #4CAF50;
+  background-color: #0A5E58;
 }
 
 .signin {
@@ -56,4 +56,9 @@ textarea.invalid {
   width: 75%;
   align-content: center;
   border: 1px solid #aaaaaa;
+}
+
+.btn-super {
+  color: #FFFFFF!important;
+  background: #0A5E58;
 }
