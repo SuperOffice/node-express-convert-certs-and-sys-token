@@ -31,19 +31,6 @@ app.engine(
 );
 app.set("view engine", "hbs");
 
-//Tell Express that we're running behind a
-//reverse proxy that supplies https for you
-app.set('trust proxy', 1);
-
-//Add middleware that will trick Express
-//into thinking the request is secure
-app.use(function(req, res, next) {
-  if(req.headers['x-arr-ssl'] && !req.headers['x-forwarded-proto']) {
-    req.headers['x-forwarded-proto'] = 'https';
-  }
-  return next();
-});
-
 app.use(logger("dev"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -51,23 +38,31 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use(
-  session({
-    name: "app.devnet",
-    secret: "SuperOfficeDevNet",
-    saveUninitialized: true,
-    resave: true,
-    store: new MemoryStore({
-      checkPeriod: 86400000 // prune expired entries every 24h
-    }),
-    cookie: {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-      maxAge: 1800000
-    }
-  })
-);
+const store = new MemoryStore({
+  checkPeriod: 86400000 // prune expired entries every 24h
+});
+
+const sessionConfig = {
+  secret: 'SuperOfficeDevNet',
+  name: 'app.devnet',
+  resave: false,
+  saveUninitialized: false,
+  store: store,
+  cookie : {
+    sameSite: 'strict', // THIS is the config you are looing for.
+  }
+};
+
+if (process.env.NODE_ENV === 'production') {
+  //Tell Express that we're running behind a
+  //reverse proxy that supplies https for you
+  app.set('trust proxy', 1); // trust first proxy
+  // enable cross-site cookie
+  sessionConfig.cookie.secure = true; // serve secure cookies
+  sessionConfig.cookie.sameSite = 'none'; //for an explicit cross-site cookie.
+}
+
+app.use(session(sessionConfig));
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -111,6 +106,15 @@ app.use(function(err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   res.render("error");
+});
+
+//Add middleware that will trick Express
+//into thinking the request is secure
+app.use(function(req, res, next) {
+  if(req.headers['x-arr-ssl'] && !req.headers['x-forwarded-proto']) {
+    req.headers['x-forwarded-proto'] = 'https';
+  }
+  return next();
 });
 
 module.exports = app;
