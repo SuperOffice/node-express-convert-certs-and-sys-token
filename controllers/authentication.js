@@ -90,12 +90,22 @@ module.exports = function (app) {
     passport.authenticate('openidconnect')(req, res, next);
   });
 
-  //Callback url given to pingfederate team - this will redirect to the url saved by /openid if one exists
+  // superoffice app callback/redirect_uri - this will redirect to the url saved by /openid if one exists
   app.get(
     '/openid/callback',
-    passport.authenticate('openidconnect', {
-      failureRedirect: '/',
-      successRedirect: '/account',
-    })
+    function(req, res, next) {  
+      if(req.query.code)
+      {
+          passport.authenticate('openidconnect', function(err, user, info, status) {
+            if (err) { return next(err) }
+            if (!user) { return res.redirect('/account/signin') }
+            req.session.user = user;
+            req.login(user, (err)=> {res.redirect('/account');});
+          })(req, res, next);
+             
+      } else {
+        res.redirect('/');
+      }
+    }
   );
 };
