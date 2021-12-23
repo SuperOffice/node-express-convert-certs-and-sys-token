@@ -1,0 +1,103 @@
+<div class="container">
+    <h1 class="display-4">{{title}}</h1>
+    {{#with webhook}}
+    <hr />
+    <div class="row">
+        <div class="col">
+            <form id="regForm" action="/webhook/saveWebhook" method="POST">
+                <input type="text" style="display: none;" name="WebhookId" value="{{this.WebhookId}}" />
+                <div class="form-group">
+                    <label for="Name" class="control-label">Name</label>
+                    <input type="text" id="Name" name="Name" value="{{this.Name}}" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="TargetUrl" class="control-label">Target URL</label>
+                    <input type="text" id="TargetUrl" name="TargetUrl" value="{{this.TargetUrl}}" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="Secret" class="control-label">Secret</label>
+                    <input type="text" id="Secret" name="Secret" value="{{this.Secret}}" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="State" class="control-label">State</label>
+                    <select name="State">
+                        {{#each ../webhookStates}}
+                        <option value="{{this.name}}" id="{{@index}}" {{#if this.selected}}selected="selected"{{/if}}>{{this.name}}</option>
+                        {{/each}}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="Type" class="control-label">Type</label>
+                    <select name="Type">
+                        {{#each ../webhookTypes}}
+                        <option value="{{this.type}}" {{#if this.selected}}selected="selected"{{/if}}>{{this.type}}</option>
+                        {{/each}}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <div class="headerContainer">
+                        <button class="add_form_field btn btn-super">Add custom header &nbsp; 
+                        <span style="font-size:16px; font-weight:bold;">+ </span>
+                        </button>
+                        <div class="row">
+                            <div class="col-md-4">Custom header name</div><div class="col-md-4">Custom header value</div>
+                        </div>
+                        {{#if this.Headers}}
+                        {{#each this.Headers}}
+                        <div class="row">
+                            <div class="col-md-4">
+                                <input type="text" name="Headers" value="{{@key}}" class="form-control" />
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" name="Headers" value="{{this}}" class="form-control" /> 
+                            </div>
+                            <a href="#" class="delete">Delete</a>
+                        </div>
+                        {{/each}}
+                        {{/if}}
+
+                    </div>
+                    
+                </div>
+                <div class="form-group">
+                    <label>Events</label>
+                    <div class="fluid-container">
+                        <div class="row">
+                        {{#each ../eventSources}}
+                            <div class="col-md-3">
+                                <div class="card">
+                                <div class="card-header">
+                                    {{this.prefix}}
+                                </div>
+                                <div class="card-body">
+                                    {{#each this.events}}
+                                    <div class="col">
+                                        <label>
+                                        <input type="checkbox"  
+                                        {{#if this.selected}}
+                                        checked
+                                        {{/if}}
+                                        id="{{@index}}" name="Events" value="{{../prefix}}.{{this.name}}"> {{this.name}}
+                                        </label>
+                                    </div>
+                                    {{/each}}
+                                </div>
+                                </div><br>
+                            </div>
+                        {{/each}}
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Save" class="btn btn-super" />
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div>
+        <a href="/webhook">Back to List</a>
+    </div>
+    {{/with}}
+</div>
+<script src="/javascripts/webhooks.js"></script>

@@ -1,0 +1,26 @@
+<div class="container">
+    <h1 class="display-4">{{title}}</h1>
+    {{#with webhook}}
+    <div>
+    <hr />
+    <form id="regForm" action="/webhook/deleteWebhook" method="POST">
+        <input type="text" style="display: none;" name="WebhookId" value="{{this.WebhookId}}" />
+        <div class="form-group">
+            <label for="Name" class="control-label">Name</label>
+            <input type="text" id="Name" name="Name" value="{{this.Name}}" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="TargetUrl" class="control-label">Target URL</label>
+            <input type="text" id="TargetUrl" name="TargetUrl" value="{{this.TargetUrl}}" class="form-control" />
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Delete" class="btn btn-super" />
+        </div>
+    </form>
+</div>
+<div>
+    <a href="/webhook/edit/{{this.WebhookId}}">Edit</a> |
+    <a href="/webhook">Back to List</a>
+</div>
+{{/with}}
+</div>

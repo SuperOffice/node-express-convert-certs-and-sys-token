@@ -1,0 +1,45 @@
+<div class="container">
+    <span style="color: red;">Webhooks functionality is experimental and might throw exceptions. Please report any issues on the <a target="_blank" href="https://github.com/SuperOffice/node-express-convert-certs-and-sys-token/issues">project site.</a></span>
+    <h1 class="display-4">{{title}}</h1>
+    <a href="/webhook/create" id="createWebhook" class="btn btn-super">Create webhook</a>
+    <h2>List of webhooks:</h2>
+    <table class="table">
+    <thead>
+        <tr>
+            <th>
+                Name
+            </th>
+            <th>
+               TargetUrl
+            </th>
+            <th>
+               State
+            </th>
+            <th>Can only manage own webhooks</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#each webhooks}}
+            <tr>
+                <td>
+                    {{this.Name}}   
+                </td>
+                <td>
+                    {{this.TargetUrl}}
+                </td>
+                <td>
+                    {{this.State}}
+                </td>
+                <td>
+                    <div>
+                        <a href="/webhook/edit/{{this.WebhookId}}">Edit</a> |
+                        <a href="/webhook/detail/{{this.WebhookId}}">Details</a> |
+                        <a href="/webhook/delete/{{this.WebhookId}}">Delete</a>
+                    </div>
+                </td>
+            </tr>
+        {{/each}}
+    </tbody>
+</table>
+
+</div>

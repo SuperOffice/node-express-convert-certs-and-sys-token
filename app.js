@@ -7,7 +7,6 @@ var passport = require("passport");
 var exphbs = require("express-handlebars");
 var path = require("path");
 var logger = require("morgan");
-var bodyParser = require("body-parser");
 var cookieParser = require("cookie-parser");
 
 require("dotenv").config();
@@ -15,6 +14,7 @@ require("dotenv").config();
 var indexRouter = require("./routes/index");
 var tokenRouter = require("./routes/token");
 var accountRouter = require("./routes/account");
+var webhookRouter = require("./routes/webhook")
 
 var app = express();
 
@@ -44,8 +44,9 @@ app.set('trust proxy', 1);
 // });
 
 app.use(logger("dev"));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.urlencoded({extended: true}));
+app.use(express.json()) // To parse the incoming requests with JSON payloads
+
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -91,6 +92,7 @@ app.use(function(req, res, next) {
 app.use("/", indexRouter);
 app.use("/token", tokenRouter);
 app.use("/account", accountRouter);
+app.use("/webhook", webhookRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

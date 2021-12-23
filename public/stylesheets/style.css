@@ -11,6 +11,10 @@ input {
   border: 1px solid #aaaaaa;
 }
 
+input[type="checkbox"] {
+  width: auto;
+}
+
 /* Mark input boxes that gets an error on validation: */
 input.invalid {
   background-color: #ffdddd;
@@ -25,6 +29,9 @@ textarea.invalid {
   display: none;
 }
 
+select {
+  width: 150px;
+}
 /* Make circles that indicate the steps of the form: */
 .step {
   height: 15px;
@@ -61,4 +68,5 @@ textarea.invalid {
 .btn-super {
   color: #FFFFFF!important;
   background: #0A5E58;
+  margin-bottom: 10px;
 }
