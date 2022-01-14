@@ -21,13 +21,13 @@ passport.deserializeUser(function (obj, done) {
    * OpenId connect Strategy
    * @type {OpenIdConnectStrategy}
    */
-var getStrategy = function (clientId, clientSecret, envir) {
+var getStrategy = function (clientId, clientSecret, envir, origin) {
   var openIdConnectStrategy = new OpenIdConnectStrategy(
     {
       issuer: process.env.OIDC_ISSUER.replace('sod', envir),
       clientID: clientId,
       clientSecret: clientSecret,
-      callbackURL: process.env.OIDC_CALLBACK_URL,
+      callbackURL: `${origin}${process.env.OIDC_CALLBACK_URL}`,
       authorizationURL: process.env.OIDC_AUTHORIZE_URL.replace('sod', envir),
       tokenURL: process.env.OIDC_TOKEN_URL.replace('sod', envir),
       skipUserProfile: true, // SuperOffice Online does not have a userinfo endpoint!
@@ -84,7 +84,7 @@ module.exports = function (app) {
       clientSecret: clientSecret
     };
 
-    var strategy = getStrategy(clientId, clientSecret, environment);
+    var strategy = getStrategy(clientId, clientSecret, environment, req.get('origin'));
     passport.use(strategy);
 
     passport.authenticate('openidconnect')(req, res, next);
