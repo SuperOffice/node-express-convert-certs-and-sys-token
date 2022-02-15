@@ -8,6 +8,7 @@ const { registerPartial } = require("hbs");
 
 /* GET webhook listing page. */
 router.get("/", Auth.required, function(req, res) {
+
   if (req.session && req.session.errors) {
     res.render("webhook", {
       title: "Webhooks",
@@ -28,6 +29,22 @@ router.get("/", Auth.required, function(req, res) {
       },  
       async function(error, response, body) 
       {
+        if(response.statusCode == 401) //unauthorized
+        {
+          res.render("webhook-edit", {
+            title: "Unauthorized",
+            errors: [
+              {
+                msg:
+                  "This application does not have access rights to the webhooks endpoint."
+              },
+              {
+                msg: "Request access @ https://community.superoffice.com/change-application"
+              }
+            ]
+          });
+
+        } else if (response.statusCode == 200) {
           //console.log("\nResponse:\n" + body);
           var serverRes = JSON.parse(body);
 
@@ -43,7 +60,7 @@ router.get("/", Auth.required, function(req, res) {
               webhooks: serverRes,
             });
           }
-          
+        }
       });
 });
 
@@ -98,7 +115,22 @@ router.get("/edit/:id",  Auth.required, function(req, res) {
       },  
       async function(error, response, body) 
       {
-          //console.log("\nResponse:\n" + body);
+        if(response.statusCode == 401) //unauthorized
+        {
+          res.render("webhook-edit", {
+            title: "Unauthorized",
+            errors: [
+              {
+                msg:
+                  "This application does not have access rights to the webhooks endpoint."
+              },
+              {
+                msg: "Request access @ https://community.superoffice.com/change-application"
+              }
+            ]
+          });
+
+        } else if (response.statusCode == 200) {
           var webhook = JSON.parse(body);
           
           res.render("webhook-edit", {
@@ -108,6 +140,12 @@ router.get("/edit/:id",  Auth.required, function(req, res) {
             webhookTypes: webhookHandler.getWebhookTypes(webhook),
             webhookStates:webhookHandler.getWebhookStates(webhook)
           });
+        } else {
+          res.render("webhook-edit", {
+            title: "Unknown error",
+            errors: `Unknown error occurred. Response code: ${response.statusCode}`
+          });
+        }
       });
   }
   

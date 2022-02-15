@@ -1,5 +1,19 @@
 <div class="container">
     <h1 class="display-4">{{title}}</h1>
+        
+    <div>
+        {{# if errors }}
+        <section class="errors">
+            <ul>
+                {{# each errors }}
+                <li>{{ this.msg }}</li>
+                {{/each}}
+            </ul>
+        </section>
+        {{/if}}
+    </div>
+
+    {{#if webhook}}
     {{#with webhook}}
     <hr />
     <div class="row">
@@ -99,5 +113,6 @@
         <a href="/webhook">Back to List</a>
     </div>
     {{/with}}
+    {{/if}}
 </div>
 <script src="/javascripts/webhooks.js"></script>
