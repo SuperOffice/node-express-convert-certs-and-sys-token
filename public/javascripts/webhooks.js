@@ -8,7 +8,7 @@ $(function() {
         e.preventDefault();
         if (x < max_fields) {
             x++;
-            $(wrapper).append('<div class="row"><div class="col-md-4"><input type="text" name="headerKey" class="form-control" /></div><div class="col-md-4"><input type="text" name="headerValue" class="form-control" /></div><a href="#" class="delete">Delete</a></div>'); //add input box
+            $(wrapper).append('<div class="row"><div class="col-md-4"><input type="text" name="Headers" class="form-control" /></div><div class="col-md-4"><input type="text" name="Headers" class="form-control" /></div><a href="#" class="delete">Delete</a></div>'); //add input box
         } else {
             alert('You Reached the limits')
         }
