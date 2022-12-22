@@ -22,7 +22,7 @@
     "express-validator": "^6.6.1",
     "hbs": "^4.1.2",
     "http-errors": "~1.8.0",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "jwks-rsa": "^1.12.2",
     "memorystore": "^1.6.2",
     "moment": "^2.27.0",
