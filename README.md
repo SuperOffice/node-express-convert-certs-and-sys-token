@@ -1,6 +1,6 @@
 # SuperOffice Developer Network
 
-Live version of this application: https://devnet-tokens.azurewebsites.net
+Live version of this application: https://devnet-tools.superoffice.com
 
 Getting Started:
 
