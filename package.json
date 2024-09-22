@@ -8,13 +8,13 @@
     "debug": "node --inspect=3300 ./bin/www"
   },
   "dependencies": {
-    "body-parser": "^1.20.2",
+    "body-parser": "^1.20.3",
     "bootstrap": "^4.5.2",
     "cookie-parser": "^1.4.5",
     "crypto": "^1.0.1",
     "debug": "~4.3.1",
     "dotenv": "^8.2.0",
-    "express": "4.19.2",
+    "express": "4.21.0",
     "express-flash": "0.0.2",
     "express-handlebars": "^5.3.2",
     "express-messages": "^1.0.1",
