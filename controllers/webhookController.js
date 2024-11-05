@@ -161,6 +161,13 @@ module.exports.getEventArray = function() {
                 { name: "sent", selected: false }
         ]},
         {
+            "prefix": "relation",
+            "events": [
+                { name: "created", selected: false },
+                { name: "changed", selected: false },
+                { name: "deleted", selected: false }
+        ]},
+        {
             "prefix": "sale",
             "events": [
                 { name: "created", selected: false },
