@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var crypto = require('crypto');
 var moment = require('moment');
-var request = require('@cypress/request');
+var request = require('postman-request');
 var xml2js = require('xml2js');
 var identityhelper = require('../controllers/identityhelper');
 

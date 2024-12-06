@@ -3,7 +3,7 @@ var express = require("express");
 var router = express.Router();
 var passport = require("passport");
 var Auth = require("./authorization");
-var request = require("@cypress/request");
+var request = require("postman-request");
 var identityhelper = require("../controllers/identityhelper");
 
 /* GET account page. */
