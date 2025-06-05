@@ -27,7 +27,7 @@
     "memorystore": "^1.6.2",
     "moment": "^2.29.4",
     "morgan": "~1.10.0",
-    "multer": "^2.0.0",
+    "multer": "^2.0.1",
     "passport": "^0.7.0",
     "passport-openidconnect": "^0.1.2",
     "postman-request": "^2.88.1-postman.40",
