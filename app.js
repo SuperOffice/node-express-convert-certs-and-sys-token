@@ -8,7 +8,6 @@ var exphbs = require("express-handlebars");
 //var expressValidator = require("express-validator");
 var path = require("path");
 var logger = require("morgan");
-var bodyParser = require("body-parser");
 var cookieParser = require("cookie-parser");
 
 require("dotenv").config();
@@ -32,8 +31,8 @@ app.engine(
 app.set("view engine", "hbs");
 
 app.use(logger("dev"));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 //app.use(expressValidator());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
