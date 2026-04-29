@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var crypto = require('crypto');
 var moment = require('moment');
-var request = require('postman-request');
+var axios = require('axios');
 var xml2js = require('xml2js');
 var identityhelper = require('../controllers/identityhelper');
 
@@ -78,77 +78,77 @@ router.post('/getSystemUserTicket', function(req, res) {
       </ns0:Body>
   </SOAP-ENV:Envelope>`;
 
-  request.post(
+  axios.post(
+    process.env.PARTNER_SYSTEM_USER_URL.replace("sod", oidcSettings.env),
+    soapEnvelope,
     {
-      url: process.env.PARTNER_SYSTEM_USER_URL.replace("sod", oidcSettings.env),
-      body: soapEnvelope,
       headers: {
         'Content-Type': 'text/xml;charset=UTF-8',
         Accept: 'application/json',
         SOAPAction:
           'http://www.superoffice.com/superid/partnersystemuser/0.1/IPartnerSystemUserService/Authenticate'
       }
-    },
-    function(error, response, body) {
-      console.log('\nResponse:\n' + body);
-      if (!error && (body != null && body.length > 0)) {
-        // convert the XML response to JSON!
-        JsParser(body).then(function(result) {
-          var successful =
-            result.Envelope.Body[0].AuthenticationResponse[0].IsSuccessful[0];
+    }
+  ).then(function(response) {
+    var body = response.data;
+    console.log('\nResponse:\n' + body);
+    if (body != null && body.length > 0) {
+      // convert the XML response to JSON!
+      JsParser(body).then(function(result) {
+        var successful =
+          result.Envelope.Body[0].AuthenticationResponse[0].IsSuccessful[0];
 
-          if (successful && successful == 'true') {
-            var token =
-              result.Envelope.Body[0].AuthenticationResponse[0].Token[0];
+        if (successful && successful == 'true') {
+          var token =
+            result.Envelope.Body[0].AuthenticationResponse[0].Token[0];
 
-            if (token) {
-              // get public key and validate signed token.
-              var settings = res.req.session.oidc;
-              identityhelper
-                .validateJwtToken(token, settings)
-                .then(validatedToken => {
-                  res.render('token', {
-                    title: 'SuperOffice DevNet Example',
-                    systemUserClaims: validatedToken
-                  });
-                })
-                .catch(error => {
-                  res.render('token', {
-                    title: 'SuperOffice DevNet Example',
-                    error: error
-                  });
+          if (token) {
+            // get public key and validate signed token.
+            var settings = res.req.session.oidc;
+            identityhelper
+              .validateJwtToken(token, settings)
+              .then(validatedToken => {
+                res.render('token', {
+                  title: 'SuperOffice DevNet Example',
+                  systemUserClaims: validatedToken
                 });
-            } else {
-              res.render('token', {
-                title: 'SuperOffice DevNet Example',
-                errors: [
-                  {
-                    msg:
-                      'Web service call was successful, but unable to extract context of the JWT.'
-                  }
-                ]
+              })
+              .catch(error => {
+                res.render('token', {
+                  title: 'SuperOffice DevNet Example',
+                  error: error
+                });
               });
-            }
           } else {
             res.render('token', {
               title: 'SuperOffice DevNet Example',
               errors: [
                 {
                   msg:
-                    'No ticket returned by SuperOffice. Wrong context identifier, signed key or application token?'
+                    'Web service call was successful, but unable to extract context of the JWT.'
                 }
               ]
             });
           }
-        });
-      } else {
-        res.render('token', {
-          title: 'SuperOffice DevNet Example',
-          errors: [{ msg: error }]
-        });
-      }
+        } else {
+          res.render('token', {
+            title: 'SuperOffice DevNet Example',
+            errors: [
+              {
+                msg:
+                  'No ticket returned by SuperOffice. Wrong context identifier, signed key or application token?'
+              }
+            ]
+          });
+        }
+      });
     }
-  );
+  }).catch(function(error) {
+    res.render('token', {
+      title: 'SuperOffice DevNet Example',
+      errors: [{ msg: error.message }]
+    });
+  });
 });
 
 function JsParser(body) {

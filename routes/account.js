@@ -3,7 +3,7 @@ var express = require("express");
 var router = express.Router();
 var passport = require("passport");
 var Auth = require("./authorization");
-var request = require("postman-request");
+var axios = require("axios");
 var identityhelper = require("../controllers/identityhelper");
 
 /* GET account page. */
@@ -42,7 +42,7 @@ router.post("/login", function(req, res) {
   res.render("account", { title: "User Account" });
 });
 
-router.post("/refresh", function(req, res) {
+router.post("/refresh", async function(req, res) {
   var oidcSettings = req.session.oidc;
   var refresh_token = req.body.refresh_token;
   var refresh_url = `${
@@ -55,65 +55,44 @@ router.post("/refresh", function(req, res) {
     process.env.OIDC_CALLBACK_URL
   }`;
 
-  request.post(
-    {
-      url: refresh_url,
-      headers: {
-        Accept: "application/json"
-      }
-    },
-    async function(error, response, body) {
-      console.log("\nResponse:\n" + body);
-      var serverRes = JSON.parse(body);
-      try {
-        var settings = res.req.session.oidc;
-        var jwtClaims = await identityhelper.validateJwtToken(
-          serverRes.id_token, settings
-        );
-
-        var user = identityhelper.populateUser(
-          serverRes.access_token,
-          refresh_token,
-          jwtClaims
-        );
-
-        req.session.passport.user = user;
-      } catch (error) {
-        console.log(error);
-      }
-      res.redirect("/account");
-    }
-  );
+  try {
+    var response = await axios.post(refresh_url, null, {
+      headers: { Accept: "application/json" }
+    });
+    console.log("\nResponse:\n" + JSON.stringify(response.data));
+    var serverRes = response.data;
+    var settings = res.req.session.oidc;
+    var jwtClaims = await identityhelper.validateJwtToken(
+      serverRes.id_token, settings
+    );
+    var user = identityhelper.populateUser(
+      serverRes.access_token,
+      refresh_token,
+      jwtClaims
+    );
+    req.session.passport.user = user;
+  } catch (error) {
+    console.log(error);
+  }
+  res.redirect("/account");
 });
 
-router.post("/revoke", function(req, res) {
+router.post("/revoke", async function(req, res) {
   var refresh_token = req.body.refresh_token;
   var oidc = req.session.oidc;
 
-  var revoke_url = `${process.env.OIDC_REVOKE_URL.replace("sod", oidc.env )}?token=${refresh_token}&token_type_hint=JWT`;
+  var revoke_url = `${process.env.OIDC_REVOKE_URL.replace("sod", oidc.env)}?token=${refresh_token}&token_type_hint=JWT`;
 
-  request.post(
-    {
-      url: revoke_url,
-      headers: {
-        Accept: "application/json"
-      }
-    },
-    async function(error, response, body) {
-      try {
-        console.log("\nResponse:\n" + body);
-
-        var serverRes = JSON.parse(body);
-
-        console.log("token revoked!");
-
-      } catch (error) {
-        console.log("Error: " + error);
-      }
-
-      res.redirect("/account");
-    }
-  );
+  try {
+    var response = await axios.post(revoke_url, null, {
+      headers: { Accept: "application/json" }
+    });
+    console.log("\nResponse:\n" + JSON.stringify(response.data));
+    console.log("token revoked!");
+  } catch (error) {
+    console.log("Error: " + error);
+  }
+  res.redirect("/account");
 });
 
 module.exports = router;
