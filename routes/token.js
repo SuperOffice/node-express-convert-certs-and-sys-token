@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var crypto = require('crypto');
 var moment = require('moment');
-var request = require('request');
+var send = require('../controllers/httpclient');
 var xml2js = require('xml2js');
 var identityhelper = require('../controllers/identityhelper');
 
@@ -78,18 +78,20 @@ router.post('/getSystemUserTicket', function(req, res) {
       </ns0:Body>
   </SOAP-ENV:Envelope>`;
 
-  request.post(
-    {
-      url: process.env.PARTNER_SYSTEM_USER_URL.replace("sod", oidcSettings.env),
-      body: soapEnvelope,
-      headers: {
-        'Content-Type': 'text/xml;charset=UTF-8',
-        Accept: 'application/json',
-        SOAPAction:
-          'http://www.superoffice.com/superid/partnersystemuser/0.1/IPartnerSystemUserService/Authenticate'
-      }
-    },
-    function(error, response, body) {
+  send({
+    url: process.env.PARTNER_SYSTEM_USER_URL.replace("sod", oidcSettings.env),
+    method: 'POST',
+    body: soapEnvelope,
+    headers: {
+      'Content-Type': 'text/xml;charset=UTF-8',
+      Accept: 'application/json',
+      SOAPAction:
+        'http://www.superoffice.com/superid/partnersystemuser/0.1/IPartnerSystemUserService/Authenticate'
+    }
+  })
+    .then(response => ({ error: null, body: response.body }))
+    .catch(error => ({ error: error.message, body: null }))
+    .then(function({ error, body }) {
       console.log('\nResponse:\n' + body);
       if (!error && (body != null && body.length > 0)) {
         // convert the XML response to JSON!
@@ -147,8 +149,7 @@ router.post('/getSystemUserTicket', function(req, res) {
           errors: [{ msg: error }]
         });
       }
-    }
-  );
+    });
 });
 
 function JsParser(body) {

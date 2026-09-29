@@ -1,5 +1,3 @@
-var request = require("request");
-
 module.exports.getWebhook = function(reqBody) {
 
     let headers = {};

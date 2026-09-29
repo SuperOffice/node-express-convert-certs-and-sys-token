@@ -2,7 +2,7 @@
 var express = require("express");
 var router = express.Router();
 var Auth = require("./authorization");
-var request = require("request");
+var send = require("../controllers/httpclient");
 var identityhelper = require("../controllers/identityhelper");
 
 /* GET account page. */
@@ -26,7 +26,7 @@ router.get("/signout", function(req, res) {
   res.redirect("/logout");
 });
 
-router.post("/refresh", Auth.required, function(req, res) {
+router.post("/refresh", Auth.required, async function(req, res) {
   var oidcSettings = req.session.oidc;
   if (!oidcSettings) {
     return res.redirect("/account/signin");
@@ -42,38 +42,35 @@ router.post("/refresh", Auth.required, function(req, res) {
     process.env.OIDC_CALLBACK_URL
   }`;
 
-  request.post(
-    {
+  try {
+    var response = await send({
       url: refresh_url,
+      method: "POST",
       headers: {
         Accept: "application/json"
       }
-    },
-    async function(error, response, body) {
-      console.log("\nResponse:\n" + body);
-      var serverRes = JSON.parse(body);
-      try {
-        var settings = res.req.session.oidc;
-        var jwtClaims = await identityhelper.validateJwtToken(
-          serverRes.id_token, settings
-        );
+    });
+    console.log("\nResponse:\n" + response.body);
+    var serverRes = JSON.parse(response.body);
 
-        var user = identityhelper.populateUser(
-          serverRes.access_token,
-          refresh_token,
-          jwtClaims
-        );
+    var jwtClaims = await identityhelper.validateJwtToken(
+      serverRes.id_token, oidcSettings
+    );
 
-        req.session.passport.user = user;
-      } catch (error) {
-        console.log(error);
-      }
-      res.redirect("/account");
-    }
-  );
+    var user = identityhelper.populateUser(
+      serverRes.access_token,
+      refresh_token,
+      jwtClaims
+    );
+
+    req.session.passport.user = user;
+  } catch (error) {
+    console.log(error);
+  }
+  res.redirect("/account");
 });
 
-router.post("/revoke", Auth.required, function(req, res) {
+router.post("/revoke", Auth.required, async function(req, res) {
   var refresh_token = req.body.refresh_token;
   var oidc = req.session.oidc;
   if (!oidc) {
@@ -82,28 +79,23 @@ router.post("/revoke", Auth.required, function(req, res) {
 
   var revoke_url = `${process.env.OIDC_REVOKE_URL.replace("sod", oidc.env )}?token=${refresh_token}&token_type_hint=JWT`;
 
-  request.post(
-    {
+  try {
+    var response = await send({
       url: revoke_url,
+      method: "POST",
       headers: {
         Accept: "application/json"
       }
-    },
-    async function(error, response, body) {
-      try {
-        console.log("\nResponse:\n" + body);
+    });
+    console.log("\nResponse:\n" + response.body);
 
-        var serverRes = JSON.parse(body);
+    console.log("token revoked!");
 
-        console.log("token revoked!");
+  } catch (error) {
+    console.log("Error: " + error);
+  }
 
-      } catch (error) {
-        console.log("Error: " + error);
-      }
-
-      res.redirect("/account");
-    }
-  );
+  res.redirect("/account");
 });
 
 module.exports = router;
