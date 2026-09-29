@@ -69,9 +69,9 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-require("./controllers/authentication.js")(app);
-
 app.use(flash());
+
+require("./controllers/authentication.js")(app);
 
 // setup middleware that sets sets global variables
 app.use(function(req, res, next) {

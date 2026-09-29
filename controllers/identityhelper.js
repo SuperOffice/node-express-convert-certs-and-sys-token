@@ -1,32 +1,25 @@
 var jwksClient = require("jwks-rsa");
 var jwt = require("jsonwebtoken");
-const { request } = require("express");
 
-function getSigningKey(oidcSettings) {
-  return new Promise(function(resolve, reject) {
-    var jwksUrl = process.env.OIDC_JWKS_URL.replace("sod", oidcSettings.env);
-    var client = jwksClient({ jwksUri: jwksUrl });
-    client.getKeys(function(err, keys) {
-      if(err) {
-        reject(err);
-      } else {
-        // get the first and only key
-        client.getSigningKey(keys[0].kid, function(inerr, key) {
-          if (inerr) {
-            reject(inerr);
-          } else {
-            var signingKey = key.publicKey || key.rsaPublicKey;
-            resolve(signingKey);
-          }
-        });
-      }
-    });
-  });
+// one cached client per environment (sod, qaonline, online)
+var jwksClients = {};
+
+async function getSigningKey(oidcSettings) {
+  var jwksUrl = process.env.OIDC_JWKS_URL.replace("sod", oidcSettings.env);
+  var client = jwksClients[jwksUrl] || (jwksClients[jwksUrl] = jwksClient({ jwksUri: jwksUrl }));
+
+  // jwks-rsa >= 2 is promise based - getKeys()/getSigningKeys() no longer accept callbacks
+  var keys = await client.getSigningKeys();
+  if (!keys.length) {
+    throw new Error("No signing keys found at " + jwksUrl);
+  }
+  // get the first and only key
+  return keys[0].getPublicKey();
 }
 
 function validateToken(token, publicKey) {
   return new Promise(function(resolve, reject) {
-    var options = { ignoreExpiration: true, algorithm: ["RS256"] };
+    var options = { ignoreExpiration: true, algorithms: ["RS256"] };
 
     jwt.verify(token, publicKey, options, function(err, decoded) {
       if (err) {

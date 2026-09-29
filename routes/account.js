@@ -1,7 +1,6 @@
 // @ts-check
 var express = require("express");
 var router = express.Router();
-var passport = require("passport");
 var Auth = require("./authorization");
 var request = require("request");
 var identityhelper = require("../controllers/identityhelper");
@@ -9,7 +8,7 @@ var identityhelper = require("../controllers/identityhelper");
 /* GET account page. */
 router.get("/", Auth.required, function(req, res) {
   if (req.session && req.session.errors) {
-    res.render("account", {
+    return res.render("account", {
       title: "User Account",
       errors: req.session.errors
     });
@@ -27,23 +26,11 @@ router.get("/signout", function(req, res) {
   res.redirect("/logout");
 });
 
-router.post("/login", function(req, res) {
-  // As means to eliminate hosting locally,
-  // consider implementing an override to
-  // hardcoded client id/secret in .env file.
-  // i.e. create new strategy with new client
-  // details from POST, add to passport, then
-  // call authenticate using new strategy
-
-  passport.authenticate("openid-connect", {
-    failureRedirect: "/",
-    successRedirect: "/account"
-  });
-  res.render("account", { title: "User Account" });
-});
-
-router.post("/refresh", function(req, res) {
+router.post("/refresh", Auth.required, function(req, res) {
   var oidcSettings = req.session.oidc;
+  if (!oidcSettings) {
+    return res.redirect("/account/signin");
+  }
   var refresh_token = req.body.refresh_token;
   var refresh_url = `${
     process.env.OIDC_TOKEN_URL.replace("sod", oidcSettings.env)
@@ -86,9 +73,12 @@ router.post("/refresh", function(req, res) {
   );
 });
 
-router.post("/revoke", function(req, res) {
+router.post("/revoke", Auth.required, function(req, res) {
   var refresh_token = req.body.refresh_token;
   var oidc = req.session.oidc;
+  if (!oidc) {
+    return res.redirect("/account/signin");
+  }
 
   var revoke_url = `${process.env.OIDC_REVOKE_URL.replace("sod", oidc.env )}?token=${refresh_token}&token_type_hint=JWT`;
 

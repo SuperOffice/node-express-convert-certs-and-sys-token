@@ -10,13 +10,13 @@ const { registerPartial } = require("hbs");
 router.get("/", Auth.required, function(req, res) {
 
   if (req.session && req.session.errors) {
-    res.render("webhook", {
+    return res.render("webhook", {
       title: "Webhooks",
       errors: req.session.errors
     });
   }
 
-  const webHookUrl = `${req.session.user.webapi_url}v1/Webhook`;
+  const webHookUrl = `${req.user.webapi_url}v1/Webhook`;
   const success_message = req.flash("success_msg");
 
   request(
@@ -24,7 +24,7 @@ router.get("/", Auth.required, function(req, res) {
           url: webHookUrl,
           headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${req.session.user.info.accessToken}`
+              Authorization: `Bearer ${req.user.info.accessToken}`
           }
       },  
       async function(error, response, body) 
@@ -73,7 +73,7 @@ router.get("/create/", function(req, res) {
 router.get("/edit/:id",  Auth.required, function(req, res) {
 
   if (req.session && req.session.errors) {
-    res.render("webhook-edit", {
+    return res.render("webhook-edit", {
       title: "Webhooks",
       errors: req.session.errors
     }); 
@@ -81,13 +81,13 @@ router.get("/edit/:id",  Auth.required, function(req, res) {
   
   if(req.params.id && parseInt(req.params.id) > 0)
   {
-    const webHookUrl = `${req.session.user.webapi_url}v1/Webhook/${req.params.id}`;
+    const webHookUrl = `${req.user.webapi_url}v1/Webhook/${req.params.id}`;
     request(
       {
           url: webHookUrl,
           headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${req.session.user.info.accessToken}`
+              Authorization: `Bearer ${req.user.info.accessToken}`
           }
       },  
       async function(error, response, body) 
@@ -104,13 +104,13 @@ router.get("/edit/:id",  Auth.required, function(req, res) {
           });
       });
   } else {
-    const webHookUrl = `${req.session.user.webapi_url}v1/Webhook/default`;
+    const webHookUrl = `${req.user.webapi_url}v1/Webhook/default`;
     request(
       {
           url: webHookUrl,
           headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${req.session.user.info.accessToken}`
+              Authorization: `Bearer ${req.user.info.accessToken}`
           }
       },  
       async function(error, response, body) 
@@ -158,20 +158,20 @@ router.get("/edit/:id",  Auth.required, function(req, res) {
 router.get("/delete/:id", Auth.required, function(req, res) {
   
   if (req.session && req.session.errors) {
-    res.render("webhook-delete", {
+    return res.render("webhook-delete", {
       title: "Delete webhook",
       errors: req.session.errors
     }); 
   }
 
-  const webHookUrl = `${req.session.user.webapi_url}v1/Webhook/${req.params.id}`;
+  const webHookUrl = `${req.user.webapi_url}v1/Webhook/${req.params.id}`;
     
   request(
       {
           url: webHookUrl,
           headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${req.session.user.info.accessToken}`
+              Authorization: `Bearer ${req.user.info.accessToken}`
           }
       },  
       async function(error, response, body) 
@@ -200,20 +200,20 @@ router.get("/delete/:id", Auth.required, function(req, res) {
 router.get("/detail/:id",  Auth.required, function(req, res) {
 
   if (req.session && req.session.errors) {
-    res.render("webhook-detail", {
+    return res.render("webhook-detail", {
       title: "Webhooks",
       errors: req.session.errors
     }); 
   }
 
-  const webHookUrl = `${req.session.user.webapi_url}v1/Webhook/${req.params.id}`;
+  const webHookUrl = `${req.user.webapi_url}v1/Webhook/${req.params.id}`;
     
   request(
       {
           url: webHookUrl,
           headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${req.session.user.info.accessToken}`
+              Authorization: `Bearer ${req.user.info.accessToken}`
           }
       },  
       async function(error, response, body) 
@@ -234,8 +234,8 @@ router.post('/saveWebhook', function(req, res) {
 
   const isNew = webhook.WebhookId > 0 ? false : true;
   const webHookUrl = isNew ? 
-    `${req.session.user.webapi_url}v1/Webhook` : 
-    `${req.session.user.webapi_url}v1/Webhook/${webhook.WebhookId}`;
+    `${req.user.webapi_url}v1/Webhook` : 
+    `${req.user.webapi_url}v1/Webhook/${webhook.WebhookId}`;
   const method = isNew ? "POST" : "PUT";
 
   request(
@@ -244,7 +244,7 @@ router.post('/saveWebhook', function(req, res) {
         headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
-            Authorization: `Bearer ${req.session.user.info.accessToken}`
+            Authorization: `Bearer ${req.user.info.accessToken}`
         },
         method: method,
         body: JSON.stringify(webhook)
@@ -272,7 +272,7 @@ router.post('/saveWebhook', function(req, res) {
 router.post('/deleteWebhook', function(req, res) {
   
   let webhook = webhookHandler.getWebhook(req.body);
-  const webHookUrl = `${req.session.user.webapi_url}v1/Webhook/${webhook.WebhookId}`;
+  const webHookUrl = `${req.user.webapi_url}v1/Webhook/${webhook.WebhookId}`;
 
   request(
     {
@@ -280,7 +280,7 @@ router.post('/deleteWebhook', function(req, res) {
         headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
-            Authorization: `Bearer ${req.session.user.info.accessToken}`
+            Authorization: `Bearer ${req.user.info.accessToken}`
         },
         method: "DELETE"
     },  
