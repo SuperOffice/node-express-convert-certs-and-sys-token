@@ -4,7 +4,7 @@ var session = require("express-session");
 var MemoryStore = require("memorystore")(session);
 var flash = require("express-flash");
 var passport = require("passport");
-var exphbs = require("express-handlebars");
+var { engine: exphbs } = require("express-handlebars");
 //var expressValidator = require("express-validator");
 var path = require("path");
 var logger = require("morgan");
@@ -48,7 +48,10 @@ const sessionConfig = {
   saveUninitialized: false,
   store: store,
   cookie : {
-    sameSite: 'strict', // THIS is the config you are looing for.
+    // 'lax' (not 'strict') so the cookie is sent on the top-level redirect
+    // back from SuperOffice to /openid/callback, where the OIDC state is verified.
+    sameSite: 'lax',
+    httpOnly: true,
   }
 };
 
@@ -56,19 +59,27 @@ if (process.env.NODE_ENV === 'production') {
   //Tell Express that we're running behind a
   //reverse proxy that supplies https for you
   app.set('trust proxy', 1); // trust first proxy
-  // enable cross-site cookie
   sessionConfig.cookie.secure = true; // serve secure cookies
-  sessionConfig.cookie.sameSite = 'none'; //for an explicit cross-site cookie.
 }
+
+//Add middleware that will trick Express
+//into thinking the request is secure
+//(must run before the session middleware so secure cookies are issued)
+app.use(function(req, res, next) {
+  if(req.headers['x-arr-ssl'] && !req.headers['x-forwarded-proto']) {
+    req.headers['x-forwarded-proto'] = 'https';
+  }
+  return next();
+});
 
 app.use(session(sessionConfig));
 
 app.use(passport.initialize());
 app.use(passport.session());
 
-require("./controllers/authentication.js")(app);
-
 app.use(flash());
+
+require("./controllers/authentication.js")(app);
 
 // setup middleware that sets sets global variables
 app.use(function(req, res, next) {
@@ -105,15 +116,6 @@ app.use(function(err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   res.render("error");
-});
-
-//Add middleware that will trick Express
-//into thinking the request is secure
-app.use(function(req, res, next) {
-  if(req.headers['x-arr-ssl'] && !req.headers['x-forwarded-proto']) {
-    req.headers['x-forwarded-proto'] = 'https';
-  }
-  return next();
 });
 
 module.exports = app;

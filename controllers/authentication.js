@@ -19,25 +19,34 @@ passport.deserializeUser(function (obj, done) {
 
   /**
    * OpenId connect Strategy
+   * A new instance is created per request from the settings stored in the session,
+   * so that concurrent users with different client ids/environments don't collide.
    * @type {OpenIdConnectStrategy}
    */
-var getStrategy = function (clientId, clientSecret, envir) {
+var getStrategy = function (oidc) {
   var openIdConnectStrategy = new OpenIdConnectStrategy(
     {
-      issuer: process.env.OIDC_ISSUER.replace('sod', envir),
-      clientID: clientId,
-      clientSecret: clientSecret,
+      issuer: process.env.OIDC_ISSUER.replace('sod', oidc.env),
+      clientID: oidc.clientId,
+      clientSecret: oidc.clientSecret,
       callbackURL: process.env.OIDC_CALLBACK_URL,
-      authorizationURL: process.env.OIDC_AUTHORIZE_URL.replace('sod', envir),
-      tokenURL: process.env.OIDC_TOKEN_URL.replace('sod', envir),
+      authorizationURL: process.env.OIDC_AUTHORIZE_URL.replace('sod', oidc.env),
+      tokenURL: process.env.OIDC_TOKEN_URL.replace('sod', oidc.env),
       skipUserProfile: true, // SuperOffice Online does not have a userinfo endpoint!
-      scope: 'openid',
+      // 'openid' scope is added automatically by passport-openidconnect
     },
-    function (iss, sub, profile, jwtClaims, accessToken, refreshToken, params, cb) {
-      var user = identityhelper.populateUser(accessToken, refreshToken, jwtClaims);
-
-      //return error, user, info (for flash messages)...
-      return cb(null, user, null);
+    // passport-openidconnect 0.1.x signature (arity 8)
+    function (iss, profile, context, idToken, accessToken, refreshToken, params, cb) {
+      // the library only decodes the id_token, so validate its signature here
+      identityhelper
+        .validateJwtToken(idToken, oidc)
+        .then(function (jwtClaims) {
+          var user = identityhelper.populateUser(accessToken, refreshToken, jwtClaims);
+          return cb(null, user);
+        })
+        .catch(function (err) {
+          return cb(err);
+        });
     }
   );
 
@@ -46,66 +55,60 @@ var getStrategy = function (clientId, clientSecret, envir) {
 
 
 module.exports = function (app) {
-  app.use(passport.initialize());
-  app.use(passport.session());
-
   //Logs the user out and redirects to the home page
-  app.get('/logout', function (req, res) {
-    req.logout();
-    req.session.destroy(function () {
-      res.redirect('/');
+  app.get('/logout', function (req, res, next) {
+    req.logout(function (err) {
+      if (err) { return next(err); }
+      req.session.destroy(function () {
+        res.redirect('/');
+      });
     });
   });
 
-  // //Used to authenticate the user - you can pass a url to redirect to after authentication as the '?redirect=' param
-  // app.get('/openid', function (req, res, next) {
-  //   if (req.query.redirect) {
-  //     req.session.authRedirect = req.query.redirect;
-  //   }
-    
-  //   var clientId = req.body.clientId;
-  //   var clientSecret = req.body.clientSecret;
-    
-  //   passport.authenticate('openidconnect')(req, res, next);
-  // });
-  
   app.post('/openid', function (req, res, next) {
     if (req.query.redirect) {
       req.session.authRedirect = req.query.redirect;
     }
-    
-    var clientId = req.body.clientId;
-    var clientSecret = req.body.clientSecret;
-    var environment = req.body.environment;
-    
-    req.session.oidc = { 
-      env:environment,
-      clientId: clientId,
-      clientSecret: clientSecret
+
+    req.session.oidc = {
+      env: req.body.environment,
+      clientId: req.body.clientId,
+      clientSecret: req.body.clientSecret
     };
 
-    var strategy = getStrategy(clientId, clientSecret, environment);
-    passport.use(strategy);
-
-    passport.authenticate('openidconnect')(req, res, next);
+    passport.authenticate(getStrategy(req.session.oidc))(req, res, next);
   });
 
   // superoffice app callback/redirect_uri - this will redirect to the url saved by /openid if one exists
   app.get(
     '/openid/callback',
-    function(req, res, next) {  
-      if(req.query.code)
-      {
-          passport.authenticate('openidconnect', function(err, user, info, status) {
-            if (err) { return next(err) }
-            if (!user) { return res.redirect('/account/signin') }
-            req.session.user = user;
-            req.login(user, (err)=> {res.redirect('/account');});
-          })(req, res, next);
-             
-      } else {
-        res.redirect('/');
+    function(req, res, next) {
+      if (!req.query.code) {
+        return res.redirect('/');
       }
+
+      if (!req.session.oidc) {
+        console.warn('OIDC callback without session settings - was the session cookie sent?');
+        req.flash('error_msg', 'Your session expired during sign-in. Please try again.');
+        return res.redirect('/account/signin');
+      }
+
+      passport.authenticate(getStrategy(req.session.oidc), function(err, user, info) {
+        if (err) { return next(err); }
+        if (!user) {
+          console.warn('OIDC authentication failed:', info);
+          req.flash('error_msg', (info && info.message) || 'Authentication failed.');
+          return res.redirect('/account/signin');
+        }
+        // passport >= 0.6 regenerates the session on login; keep the oidc settings
+        // needed by /account/refresh and /account/revoke
+        req.login(user, { keepSessionInfo: true }, function (err) {
+          if (err) { return next(err); }
+          var redirect = req.session.authRedirect || '/account';
+          delete req.session.authRedirect;
+          res.redirect(redirect);
+        });
+      })(req, res, next);
     }
   );
 };
