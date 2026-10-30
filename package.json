@@ -28,7 +28,7 @@
     "memorystore": "^1.6.2",
     "moment": "^2.31.0",
     "morgan": "~1.12.1",
-    "multer": "^2.4.0",
+    "multer": "^2.5.0",
     "passport": "^0.7.0",
     "passport-openidconnect": "^0.1.2",
     "rsa-xml": "^0.1.5",
